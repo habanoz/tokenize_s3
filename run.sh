@@ -19,6 +19,6 @@ echo "Installing dependencies"
 pip3 install -q -r requirements.txt
 
 echo "Running script"
-python3 tokenize_ds.py -ts 1 --local work_dir --logs "s3://$1/tokenize-dir/logs" stas/openwebtext-10k "s3://$1/tokenize-dir"
+python3 tokenize_ds.py -ts 16 --local work_dir --logs "s3://$1/tokenize-dir/logs" stas/openwebtext-10k "s3://$1/tokenize-dir"
 
 echo "Done!"
