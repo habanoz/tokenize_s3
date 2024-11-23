@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "output_bucket" {
+  description = "s3 bucket to store output"
+  type        = string
+  default     = "tokenize-bucket20241123183012162100000001"
+}
+
 # Configure AWS Provider
 provider "aws" {
   region = var.aws_region
@@ -25,8 +31,8 @@ resource "aws_iam_role_policy" "s3_access" {
           "s3:CreateBucket"
         ]
         Resource = [
-          "arn:aws:s3:::tokenize-bucket20241123081319090400000001/*",
-          "arn:aws:s3:::tokenize-bucket20241123081319090400000001"
+          "arn:aws:s3:::${var.output_bucket}/*",
+          "arn:aws:s3:::${var.output_bucket}"
         ]
       },
       {
@@ -83,12 +89,13 @@ resource "aws_spot_instance_request" "worker" {
               #!/bin/bash
               echo "### Starting initialization..."
               AWS_REGION="${var.aws_region}"
+              BUCKET="${var.output_bucket}"
               echo "### AWS region $AWS_REGION"
               echo "### Current dir: $PWD"
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
               echo "### Current dir: $PWD"
-              chmod +x run.sh
+              chmod +x run.sh "$BUCKET"
               ./run.sh
               # Signal completion to terminate instance
               chmod +x terminate_instance.sh

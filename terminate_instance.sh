@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  echo "Error: Parameter 1 is not set"
+  echo "Error: region argument is not set"
   exit 1
 fi
 
