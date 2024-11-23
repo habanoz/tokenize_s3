@@ -85,9 +85,9 @@ resource "aws_spot_instance_request" "worker" {
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   key_name              = "MyKeyPair-us-east-1"
   
-  user_data = templatefile("${path.module}/init.sh", {
-    AWS_REGION = var.aws_region,
-    BUCKET     = var.output_bucket
+  user_data = templatefile("${path.module}/init.tftpl", {
+    REGION = var.aws_region,
+    BUCKET = var.output_bucket
   })
 
   tags = {

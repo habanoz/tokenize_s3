@@ -1,12 +1,12 @@
 #!/bin/bash
 echo "### Starting initialization..."
-AWS_REGION="{{AWS_REGION}}"
-BUCKET="{{BUCKET}}"
+AWS_REGION="${REGION}"
+AWS_BUCKET="${BUCKET}"
 echo "### AWS region $AWS_REGION"
-echo "### Bucket $BUCKET"
+echo "### Bucket $AWS_REGION"
 git clone https://github.com/habanoz/tokenize_s3.git
 cd tokenize_s3
 chmod +x run.sh
-./run.sh "$BUCKET"
+./run.sh "$AWS_REGION"
 chmod +x terminate_instance.sh
 ./terminate_instance.sh "$AWS_REGION"
