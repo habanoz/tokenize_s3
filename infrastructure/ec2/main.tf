@@ -1,6 +1,12 @@
+variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
 # Configure AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 resource "aws_iam_role_policy" "s3_access" {
@@ -59,7 +65,7 @@ resource "aws_iam_role" "spot_instance_role" {
 
 # Create spot instance request
 resource "aws_spot_instance_request" "worker" {
-  ami                    = "ami-0bdf149a42243bde8"
+  ami                    = "ami-0325498274077fac5"
   instance_type          = "c8g.4xlarge"
   spot_type              = "one-time"
   wait_for_fulfillment   = true
@@ -75,6 +81,8 @@ resource "aws_spot_instance_request" "worker" {
   user_data = <<-EOF
               #!/bin/bash
               echo "Starting initialization..."
+              AWS_REGION="${var.aws_region}"
+              echo "AWS region $AWS_REGION"
               echo "Current dir: $PWD"
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
@@ -82,7 +90,8 @@ resource "aws_spot_instance_request" "worker" {
               chmod +x run.sh
               ./run.sh
               # Signal completion to terminate instance
-              aws ec2 terminate-instances --instance-ids $(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+              INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+              aws ec2 terminate-instances --instance-ids $INSTANCE_ID --region $AWS_REGION
               EOF
 
   tags = {
