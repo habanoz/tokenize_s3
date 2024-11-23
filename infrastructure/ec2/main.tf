@@ -21,11 +21,12 @@ resource "aws_iam_role_policy" "s3_access" {
         Action = [
           "s3:GetObject",
           "s3:PutObject",
-          "s3:ListBucket"
+          "s3:ListBucket",
+          "s3:CreateBucket"
         ]
         Resource = [
-          "arn:aws:s3:::your-bucket/*",  # Replace with your bucket name
-          "arn:aws:s3:::your-bucket"     # Replace with your bucket name
+          "arn:aws:s3:::tokenize-bucket20241123081319090400000001/*",
+          "arn:aws:s3:::tokenize-bucket20241123081319090400000001"
         ]
       },
       {
