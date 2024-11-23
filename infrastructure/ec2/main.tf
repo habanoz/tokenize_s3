@@ -3,22 +3,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Get latest Amazon Linux 2 ARM AMI
-data "aws_ami" "amazon_linux_2_arm" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-kernel-5.10-hvm-*-arm64-gp2"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
 resource "aws_iam_role_policy" "s3_access" {
   name = "s3_access"
   role = aws_iam_role.spot_instance_role.id
@@ -75,11 +59,11 @@ resource "aws_iam_role" "spot_instance_role" {
 
 # Create spot instance request
 resource "aws_spot_instance_request" "worker" {
-  ami                    = data.aws_ami.amazon_linux_2_arm.id
+  ami                    = "ami-0bdf149a42243bde8"
   instance_type          = "c8g.4xlarge"
   spot_type              = "one-time"
   wait_for_fulfillment   = true
-  spot_price            = "0.0640"  # Set your maximum spot price
+  spot_price            = "0.0638"  # Set your maximum spot price
   
   subnet_id             = data.aws_subnet.selected.id
   # IAM role if needed
@@ -92,7 +76,6 @@ resource "aws_spot_instance_request" "worker" {
               #!/bin/bash
               echo "Starting initialization..."
               cd /home/ec2-user
-              aws s3 cp s3://your-bucket/run.sh .  # If script is in S3
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
               chmod +x run.sh
@@ -108,7 +91,7 @@ resource "aws_spot_instance_request" "worker" {
 
 data "aws_subnet" "selected" {
   vpc_id            = data.aws_vpc.default.id
-  availability_zone = "us-east-1d"
+  availability_zone = "us-east-1b"
 }
 
 # get default vpc
