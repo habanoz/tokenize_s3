@@ -75,9 +75,10 @@ resource "aws_spot_instance_request" "worker" {
   user_data = <<-EOF
               #!/bin/bash
               echo "Starting initialization..."
-              cd /home/ubuntu
+              echo "Current dir: $PWD"
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
+              echo "Current dir: $PWD"
               chmod +x run.sh
               ./run.sh
               # Signal completion to terminate instance
