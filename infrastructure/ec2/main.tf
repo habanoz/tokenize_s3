@@ -84,24 +84,11 @@ resource "aws_spot_instance_request" "worker" {
 
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   key_name              = "MyKeyPair-us-east-1"
-
-  user_data = <<-EOF
-              #!/bin/bash
-              echo "### Starting initialization..."
-              AWS_REGION="${aws_region}"
-              BUCKET="${output_bucket}"
-              echo "### AWS region $AWS_REGION"
-              echo "### Bucket $BUCKET"
-              echo "### Current dir: $PWD"
-              git clone https://github.com/habanoz/tokenize_s3.git
-              cd tokenize_s3
-              echo "### Current dir: $PWD"
-              chmod +x run.sh "$BUCKET"
-              ./run.sh
-              # Signal completion to terminate instance
-              chmod +x terminate_instance.sh
-              ./terminate_instance.sh $AWS_REGION
-              EOF
+  
+  user_data = templatefile("${path.module}/init.sh", {
+    AWS_REGION = var.aws_region,
+    BUCKET     = var.output_bucket
+  })
 
   tags = {
     Name = "SpotWorker"
