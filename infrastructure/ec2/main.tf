@@ -81,18 +81,18 @@ resource "aws_spot_instance_request" "worker" {
 
   user_data = <<-EOF
               #!/bin/bash
-              echo "Starting initialization..."
+              echo "### Starting initialization..."
               AWS_REGION="${var.aws_region}"
-              echo "AWS region $AWS_REGION"
-              echo "Current dir: $PWD"
+              echo "### AWS region $AWS_REGION"
+              echo "### Current dir: $PWD"
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
-              echo "Current dir: $PWD"
+              echo "### Current dir: $PWD"
               chmod +x run.sh
               ./run.sh
               # Signal completion to terminate instance
-              INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-              aws ec2 terminate-instances --instance-ids $INSTANCE_ID --region $AWS_REGION
+              chmod +x terminate_instance.sh
+              ./terminate_instance.sh $AWS_REGION
               EOF
 
   tags = {
