@@ -88,9 +88,10 @@ resource "aws_spot_instance_request" "worker" {
   user_data = <<-EOF
               #!/bin/bash
               echo "### Starting initialization..."
-              AWS_REGION="${var.aws_region}"
-              BUCKET="${var.output_bucket}"
+              AWS_REGION="${aws_region}"
+              BUCKET="${output_bucket}"
               echo "### AWS region $AWS_REGION"
+              echo "### Bucket $BUCKET"
               echo "### Current dir: $PWD"
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
