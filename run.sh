@@ -14,6 +14,6 @@ echo "Installing dependencies"
 pip3 install -q -r requirements.txt
 
 echo "Running script"
-python3 tokenize_ds.py -ts 2 --local work_dir --logs s3://tokenize-bucket20241123081319090400000001/tokenize-dir/logs stas/openwebtext-10k s3://tokenize-bucket20241123081319090400000001/tokenize-dir
+python3 tokenize_ds.py -ts 16 --local work_dir --logs s3://tokenize-bucket20241123081319090400000001/tokenize-dir/logs stas/openwebtext-10k s3://tokenize-bucket20241123081319090400000001/tokenize-dir
 
 echo "Done!"
