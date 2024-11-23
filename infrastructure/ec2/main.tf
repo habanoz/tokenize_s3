@@ -75,7 +75,7 @@ resource "aws_spot_instance_request" "worker" {
   user_data = <<-EOF
               #!/bin/bash
               echo "Starting initialization..."
-              cd /home/ec2-user
+              cd /home/ubuntu
               git clone https://github.com/habanoz/tokenize_s3.git
               cd tokenize_s3
               chmod +x run.sh
