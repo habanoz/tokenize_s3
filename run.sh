@@ -5,6 +5,10 @@ sudo apt update
 sudo apt install python3.12-dev
 sudo apt install python3.12-venv
 
+echo "Creating venv"
+python3 -m venv .venv
+source .venv/bin/activate
+
 echo "Installing dependencies"
 pip3 install -r requirements.txt
 
