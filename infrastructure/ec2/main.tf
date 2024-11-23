@@ -19,19 +19,74 @@ data "aws_ami" "amazon_linux_2_arm" {
   }
 }
 
+resource "aws_iam_role_policy" "s3_access" {
+  name = "s3_access"
+  role = aws_iam_role.spot_instance_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::your-bucket/*",  # Replace with your bucket name
+          "arn:aws:s3:::your-bucket"     # Replace with your bucket name
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeInstances",
+          "ec2:TerminateInstances"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+# Create instance profile
+resource "aws_iam_instance_profile" "spot_instance_profile" {
+  name = "spot_instance_profile"
+  role = aws_iam_role.spot_instance_role.name
+}
+
+resource "aws_iam_role" "spot_instance_role" {
+  name = "spot_instance_s3_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
 # Create spot instance request
 resource "aws_spot_instance_request" "worker" {
   ami                    = data.aws_ami.amazon_linux_2_arm.id
   instance_type          = "c8g.4xlarge"
   spot_type              = "one-time"
   wait_for_fulfillment   = true
-  spot_price            = "0.0638"  # Set your maximum spot price
-
+  spot_price            = "0.0640"  # Set your maximum spot price
+  
+  subnet_id             = data.aws_subnet.selected.id
   # IAM role if needed
-  # iam_instance_profile = "your-instance-profile"
+  iam_instance_profile = aws_iam_instance_profile.spot_instance_profile.name
 
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
-  key_name              = "MyKeyPair-us-east-1"  # Replace with your key pair
+  key_name              = "MyKeyPair-us-east-1"
 
   user_data = <<-EOF
               #!/bin/bash
@@ -51,10 +106,21 @@ resource "aws_spot_instance_request" "worker" {
   }
 }
 
+data "aws_subnet" "selected" {
+  vpc_id            = data.aws_vpc.default.id
+  availability_zone = "us-east-1d"
+}
+
+# get default vpc
+data "aws_vpc" "default" {
+  default = true
+}
+
 # Security group for SSH access
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
     description = "SSH from anywhere"
